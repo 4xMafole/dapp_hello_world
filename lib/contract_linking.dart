@@ -12,18 +12,18 @@ class ContractLinking extends ChangeNotifier {
   final String _privateKey =
       "38f3fcef0f861ccd141a443bc1a44538b20f6d0d59025044ba6cb44eb2d474bb";
 
-  Web3Client _client;
-  bool isLoading = true;
+  late Web3Client _client;
+  late bool isLoading = true;
 
-  String _abiCode;
-  EthereumAddress _contractAddress;
+  late String _abiCode;
+  late EthereumAddress _contractAddress;
 
-  Credentials _credentials;
-  DeployedContract _contract;
-  ContractFunction _yourName;
-  ContractFunction _setName;
+  late Credentials _credentials;
+  late DeployedContract _contract;
+  late ContractFunction _yourName;
+  late ContractFunction _setName;
 
-  String deployedName;
+  late String deployedName;
 
   ContractLinking() {
     initialSetup();

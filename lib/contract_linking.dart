@@ -1,16 +1,17 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:http/http.dart';
 import 'package:web_socket_channel/io.dart';
 
 class ContractLinking extends ChangeNotifier {
-  final String _rpcUrl = "HTTP://127.0.0.1:7545";
-  final String _wsUrl = "ws://10.0.2.2:7545";
+  final String _rpcUrl = "http://127.0.0.1:7545";
+  final String _wsUrl = "ws://127.0.0.1:7545/";
   final String _privateKey =
-      "38f3fcef0f861ccd141a443bc1a44538b20f6d0d59025044ba6cb44eb2d474bb";
+      "4bd181af7811b594416d855b3409ff72a9bca02a5a4a5ccaf13cc7d9ab0eb0d8";
 
   late Web3Client _client;
   late bool isLoading = true;
@@ -19,6 +20,7 @@ class ContractLinking extends ChangeNotifier {
   late EthereumAddress _contractAddress;
 
   late Credentials _credentials;
+
   late DeployedContract _contract;
   late ContractFunction _yourName;
   late ContractFunction _setName;
@@ -30,13 +32,12 @@ class ContractLinking extends ChangeNotifier {
   }
 
   initialSetup() async {
-    _client = Web3Client(
-      _rpcUrl,
-      Client(),
-      socketConnector: () {
-        return IOWebSocketChannel.connect(_wsUrl).cast<String>();
-      },
-    );
+    // establish a connection to the ethereum rpc node. The socketConnector
+    // property allows more efficient event streams over websocket instead of
+    // http-polls. However, the socketConnector property is experimental.
+    _client = Web3Client(_rpcUrl, Client(), socketConnector: () {
+      return IOWebSocketChannel.connect(_wsUrl).cast<String>();
+    });
 
     await getAbi();
     await getCredentials();
@@ -44,12 +45,13 @@ class ContractLinking extends ChangeNotifier {
   }
 
   Future<void> getAbi() async {
-    //Reading the contract abi
+    // Reading the contract abi
     String abiStringFile =
-        await rootBundle.loadString("src/artifacts/HelloWorld.json");
+        await rootBundle.loadString("artifacts/HelloWorld.json");
     var jsonAbi = jsonDecode(abiStringFile);
     _abiCode = jsonEncode(jsonAbi["abi"]);
 
+    //
     _contractAddress =
         EthereumAddress.fromHex(jsonAbi["networks"]["5777"]["address"]);
   }
@@ -59,18 +61,18 @@ class ContractLinking extends ChangeNotifier {
   }
 
   Future<void> getDeployedContract() async {
-    //Telling web3dart where our contract is declared.
+    // Telling Web3dart where our contract is declared.
     _contract = DeployedContract(
         ContractAbi.fromJson(_abiCode, "HelloWorld"), _contractAddress);
 
-    //Extracting the functions, declared in contract.
+    // Extracting the functions, declared in contract.
     _yourName = _contract.function("yourName");
     _setName = _contract.function("setName");
     getName();
   }
 
   getName() async {
-    //Getting the current name declared in the smart contract
+    // Getting the current name declared in the smart contract.
     var currentName = await _client
         .call(contract: _contract, function: _yourName, params: []);
     deployedName = currentName[0];
@@ -79,7 +81,7 @@ class ContractLinking extends ChangeNotifier {
   }
 
   setName(String nameToSet) async {
-    //Setting the name to nameToSet (name defined by user)
+    // Setting the name to nameToSet(name defined by user)
     isLoading = true;
     notifyListeners();
     await _client.sendTransaction(

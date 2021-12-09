@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider<ContractLinking>(
       create: (_) => ContractLinking(),
       child: MaterialApp(
-        title: "Hello World",
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
             brightness: Brightness.dark,
             primaryColor: Colors.cyan[400],

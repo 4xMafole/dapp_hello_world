@@ -12,7 +12,7 @@ class HelloUI extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Hello World !"),
+        title: Text("DApp Hello world"),
         centerTitle: true,
       ),
       body: Container(
